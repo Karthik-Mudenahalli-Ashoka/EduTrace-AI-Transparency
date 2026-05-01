@@ -421,6 +421,56 @@ def get_summary_chat(
     return [SummaryChatResponse.model_validate(c) for c in chats]
 
 
+# ── Quick Integrity Check ────────────────────────────
+@router.get("/ai/quick-check/{submission_id}")
+def quick_integrity_check(
+    submission_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Perform a fast similarity check between submission content and AI responses."""
+    from difflib import SequenceMatcher
+    
+    submission = db.query(Submission).filter(Submission.id == submission_id).first()
+    if not submission:
+        raise HTTPException(status_code=404, detail="Submission not found")
+        
+    interactions = db.query(AIInteraction).filter(AIInteraction.submission_id == submission_id).all()
+    
+    if not interactions or not submission.final_content:
+        return {"similarity_score": 0, "detected_transcription": False}
+        
+    content = submission.final_content.lower()
+    max_ratio = 0
+    
+    # Check for verbatim chunks of 20+ words or high overall similarity
+    for i in interactions:
+        ai_resp = i.model_response.lower()
+        if not ai_resp or len(ai_resp) < 50: continue
+        
+        # Check for long verbatim substrings (transcription)
+        words = ai_resp.split()
+        window_size = 20
+        found_verbatim = False
+        for start in range(len(words) - window_size + 1):
+            window = " ".join(words[start:start+window_size])
+            if window in content:
+                found_verbatim = True
+                break
+        
+        if found_verbatim:
+            max_ratio = max(max_ratio, 0.95)
+        else:
+            # Check overall fuzzy similarity
+            ratio = SequenceMatcher(None, ai_resp[:2000], content[:2000]).ratio()
+            max_ratio = max(max_ratio, ratio)
+                
+    return {
+        "similarity_score": round(max_ratio, 2),
+        "detected_transcription": max_ratio > 0.6 # High confidence of transcription or close paraphrasing
+    }
+
+
 class ExternalScanRequest(BaseModel):
     api_key: Optional[str] = None
 

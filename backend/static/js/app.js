@@ -397,31 +397,11 @@ async function checkAI() {
       else if (l.event_type === 'paste') pasted += l.char_count;
     });
     
-    const interactions = await api.getAIInteractions(sub.id);
-    const hasAIInteraction = interactions.length > 0;
-
-    // Detect transcribed AI content (student typing out AI responses)
-    let transcribedChars = 0;
-    if (hasAIInteraction) {
-      const aiText = interactions.map(i => i.model_response.toLowerCase()).join(' ');
-      const contentLower = getEditorContent().toLowerCase();
-      const words = contentLower.match(/\S+/g) || [];
-      
-      if (words.length >= 5) {
-        let transcribedWordCount = 0;
-        const windowSize = 5; // 5 consecutive words matching indicates likely transcription
-        for (let i = 0; i <= words.length - windowSize; i++) {
-          const phrase = words.slice(i, i + windowSize).join(' ');
-          if (aiText.includes(phrase)) {
-            transcribedWordCount += windowSize;
-            i += windowSize - 1; // skip ahead to avoid double counting
-          }
-        }
-        const avgWordLength = currentLength / Math.max(1, words.length);
-        transcribedChars = Math.floor(transcribedWordCount * avgWordLength);
-      }
-    }
-
+    // Adjust logic to account for deleted text. If current document is small but past paste was huge,
+    // we shouldn't punish them forever if they deleted it.
+    const currentLength = getEditorContent().length;
+    let percentage = 0;
+    
     let effectiveTyped = 0;
     let effectivePasted = 0;
 
@@ -438,15 +418,27 @@ async function checkAI() {
       // (Handles edge cases where boilerplate makes currentLength > typed + pasted)
       effectivePasted = Math.min(effectivePasted, pasted);
       
-      // ADD Transcribed AI chars to the pasted bucket (reclassifying typed text as AI text)
-      effectivePasted = Math.min(currentLength, effectivePasted + transcribedChars);
-      effectiveTyped = Math.max(0, currentLength - effectivePasted);
-
       const effectiveTotal = effectiveTyped + effectivePasted;
       if (effectiveTotal > 0) {
         percentage = Math.round((effectivePasted / effectiveTotal) * 100);
       }
     }
+    
+    // NEW: Real-time Content Similarity Check (Transcribed content)
+    let similarityData = { similarity_score: 0, detected_transcription: false };
+    try {
+      similarityData = await api.quickCheck(sub.id);
+    } catch (e) { console.error('Quick check failed', e); }
+
+    // Combine Keystroke % and Similarity %
+    // If they transcribed AI content, their percentage should reflect that
+    if (similarityData.detected_transcription || similarityData.similarity_score > 0.5) {
+      const similarityPercent = Math.round(similarityData.similarity_score * 100);
+      percentage = Math.max(percentage, similarityPercent);
+    }
+    
+    const interactions = await api.getAIInteractions(sub.id);
+    const hasAIInteraction = interactions.length > 0;
     
     // Display the AI Generated Percentage
     const scoreColor = percentage >= 70 ? 'var(--danger)' : percentage >= 40 ? 'var(--warning)' : 'var(--success)';
@@ -456,9 +448,9 @@ async function checkAI() {
         <div style="position:relative;width:150px;height:150px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:8px solid ${scoreColor};box-shadow:0 0 20px ${scoreColor}40;background:#ffffff">
           <div style="font-size:3.5rem;font-weight:800;color:var(--text-primary)">${percentage}%</div>
         </div>
-        <h3 style="margin:0;color:${scoreColor}">Estimated AI / Pasted Content</h3>
+        <h3 style="margin:0;color:${scoreColor}">Estimated AI / Integrity Score</h3>
         <div style="font-size:0.9rem;color:var(--text-secondary);max-width:300px">
-          Calculated based on your active typed vs. pasted content.
+          Calculated based on your active typing behavior and content similarity to AI interactions.
         </div>
         <div class="grid grid-2" style="gap:12px;width:100%;margin-top:16px">
           <div class="card" style="padding:16px;background:rgba(99,102,241,0.03);border:1px solid var(--border)"><strong style="color:var(--text-primary);font-size:1.5rem">${effectiveTyped}</strong><br><span style="font-size:.75rem;color:var(--text-muted)">Active Typed Chars</span></div>

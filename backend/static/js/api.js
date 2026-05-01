@@ -70,6 +70,7 @@ const api = {
   summaryChat(data) { return this.post('/ai/summary-chat', data); },
   getSummaryChatHistory(summaryId) { return this.get(`/ai/summary-chat/${summaryId}`); },
   runExternalScan(id, apiKey) { return this.post(`/ai/external-scan/${id}`, { api_key: apiKey }); },
+  quickCheck(submissionId) { return this.get(`/ai/quick-check/${submissionId}`); },
 
   // Code execution
   executeCode(code) { return this.post('/execute', { code }); },
