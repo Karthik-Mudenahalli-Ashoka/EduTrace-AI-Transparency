@@ -440,17 +440,22 @@ def quick_integrity_check(
     if not interactions or not submission.final_content:
         return {"similarity_score": 0, "detected_transcription": False}
         
-    content = submission.final_content.lower()
+    import re
+    def clean_text(text):
+        return re.sub(r'[^\w\s]', '', text.lower())
+        
+    content = clean_text(submission.final_content)
     max_ratio = 0
     
-    # Check for verbatim chunks of 20+ words or high overall similarity
     for i in interactions:
-        ai_resp = i.model_response.lower()
-        if not ai_resp or len(ai_resp) < 50: continue
+        ai_resp_raw = i.model_response
+        if not ai_resp_raw or len(ai_resp_raw) < 50: continue
         
-        # Check for long verbatim substrings (transcription)
+        ai_resp = clean_text(ai_resp_raw)
+        
+        # 1. Verbatim sliding window check (Very strict)
         words = ai_resp.split()
-        window_size = 20
+        window_size = 10 
         found_verbatim = False
         for start in range(len(words) - window_size + 1):
             window = " ".join(words[start:start+window_size])
@@ -459,10 +464,11 @@ def quick_integrity_check(
                 break
         
         if found_verbatim:
-            max_ratio = max(max_ratio, 0.95)
+            max_ratio = max(max_ratio, 0.98)
         else:
-            # Check overall fuzzy similarity
-            ratio = SequenceMatcher(None, ai_resp[:2000], content[:2000]).ratio()
+            # 2. Fuzzy similarity (Catches paraphrasing)
+            ratio = SequenceMatcher(None, ai_resp, content).ratio()
+            # If they have a 0.4+ match on cleaned text, it's very likely they used it as a heavy reference
             max_ratio = max(max_ratio, ratio)
                 
     return {

@@ -389,6 +389,8 @@ async function checkAI() {
   document.body.appendChild(modalDiv.firstElementChild);
 
   try {
+    const currentContent = getEditorContent();
+    await api.updateSubmission(sub.id, { final_content: currentContent });
     await flushKeystrokes();
     const logs = await api.getKeystrokes(sub.id);
     let typed = 0; let pasted = 0;
