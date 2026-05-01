@@ -397,11 +397,31 @@ async function checkAI() {
       else if (l.event_type === 'paste') pasted += l.char_count;
     });
     
-    // Adjust logic to account for deleted text. If current document is small but past paste was huge,
-    // we shouldn't punish them forever if they deleted it.
-    const currentLength = getEditorContent().length;
-    let percentage = 0;
-    
+    const interactions = await api.getAIInteractions(sub.id);
+    const hasAIInteraction = interactions.length > 0;
+
+    // Detect transcribed AI content (student typing out AI responses)
+    let transcribedChars = 0;
+    if (hasAIInteraction) {
+      const aiText = interactions.map(i => i.model_response.toLowerCase()).join(' ');
+      const contentLower = getEditorContent().toLowerCase();
+      const words = contentLower.match(/\S+/g) || [];
+      
+      if (words.length >= 5) {
+        let transcribedWordCount = 0;
+        const windowSize = 5; // 5 consecutive words matching indicates likely transcription
+        for (let i = 0; i <= words.length - windowSize; i++) {
+          const phrase = words.slice(i, i + windowSize).join(' ');
+          if (aiText.includes(phrase)) {
+            transcribedWordCount += windowSize;
+            i += windowSize - 1; // skip ahead to avoid double counting
+          }
+        }
+        const avgWordLength = currentLength / Math.max(1, words.length);
+        transcribedChars = Math.floor(transcribedWordCount * avgWordLength);
+      }
+    }
+
     let effectiveTyped = 0;
     let effectivePasted = 0;
 
@@ -418,14 +438,15 @@ async function checkAI() {
       // (Handles edge cases where boilerplate makes currentLength > typed + pasted)
       effectivePasted = Math.min(effectivePasted, pasted);
       
+      // ADD Transcribed AI chars to the pasted bucket (reclassifying typed text as AI text)
+      effectivePasted = Math.min(currentLength, effectivePasted + transcribedChars);
+      effectiveTyped = Math.max(0, currentLength - effectivePasted);
+
       const effectiveTotal = effectiveTyped + effectivePasted;
       if (effectiveTotal > 0) {
         percentage = Math.round((effectivePasted / effectiveTotal) * 100);
       }
     }
-    
-    const interactions = await api.getAIInteractions(sub.id);
-    const hasAIInteraction = interactions.length > 0;
     
     // Display the AI Generated Percentage
     const scoreColor = percentage >= 70 ? 'var(--danger)' : percentage >= 40 ? 'var(--warning)' : 'var(--success)';
