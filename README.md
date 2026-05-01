@@ -1,7 +1,5 @@
 # EduTrace — Next-Gen Academic Integrity & AI Transparency
 
-![EduTrace Banner](https://raw.githubusercontent.com/Karthik-Mudenahalli-Ashoka/EduTrace-AI-Transparency/main/backend/static/navbar-logo.png) (Placeholder)
-
 **EduTrace** is a professional academic integrity platform designed to solve the "AI problem" in education. Unlike unreliable AI detectors that produce false positives, EduTrace builds a **tamper-evident evidence trail** of the entire creation process. It shifts the focus from *catching* students to *verifying* their original thought process.
 
 ---
