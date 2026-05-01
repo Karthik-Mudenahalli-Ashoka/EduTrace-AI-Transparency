@@ -1,81 +1,70 @@
-# EduTrace — AI Usage Transparency Platform
+# EduTrace — Next-Gen Academic Integrity & AI Transparency
 
-![EduTrace Logo](https://raw.githubusercontent.com/Karthik-Mudenahalli-Ashoka/EduTrace-AI-Transparency/main/backend/static/navbar-logo.png) (Placeholder)
+![EduTrace Banner](https://raw.githubusercontent.com/Karthik-Mudenahalli-Ashoka/EduTrace-AI-Transparency/main/backend/static/navbar-logo.png) (Placeholder)
 
-**EduTrace** is a professional-grade Academic Integrity & Monitoring platform designed for the age of Generative AI. Instead of relying on unreliable AI "detectors," EduTrace creates a **tamper-evident evidence trail** of student work, allowing for transparent documentation of AI usage and evidence-based evaluation.
+**EduTrace** is a professional academic integrity platform designed to solve the "AI problem" in education. Unlike unreliable AI detectors that produce false positives, EduTrace builds a **tamper-evident evidence trail** of the entire creation process. It shifts the focus from *catching* students to *verifying* their original thought process.
 
-## ✨ Key Features
+---
 
-### 🎓 For Students
-- **Hybrid Workspace** — Switch between a full-featured **Python IDE** (Monaco) and a **Rich Text Document Editor** (Quill).
-- **Embedded AI Learning Assistant** — Chat with Gemini, OpenAI, or Claude to understand concepts. All interactions are logged to prove your process.
-- **Transparency by Design** — Record your keystrokes, paste events, and browser focus patterns to demonstrate academic honesty.
+## 🛡️ The "Uncheatable" Philosophy
+EduTrace makes academic dishonesty practically impossible by recording the **DNA of a submission**:
 
-### 👨‍🏫 For Professors
-- **Integrity Dashboard** — High-contrast review interface with real-time risk assessments.
-- **Live Replay Player** — Rewind and watch the student's entire writing process stroke-by-stroke.
-- **Keystroke Heatmap** — Instant visual identification of pasted vs. typed content in code submissions.
-- **AI Integrity Reporting** — Structured reports analyzing AI usage patterns, prompted by Gemini.
-- **Advanced Grading** — Integrated grading system supporting both **Percentage** and **Letter Grades (A-F)** with automatic conversion.
+*   **Continuous Keystroke DNA**: Every single keypress is recorded with millisecond precision. A simple copy-paste of an entire essay is instantly flagged.
+*   **Time-Lapse Snapshots**: Periodic snapshots of the workspace ensure the work evolved naturally over time.
+*   **Browser Focus Tracking**: Records whenever a student leaves the tab, providing a log of potential external searches or AI tool usage.
+*   **Direct AI Interaction Logs**: If a student uses the built-in AI assistant, every prompt and response is logged and attached to their submission for the professor to review.
 
-## 🎨 Premium UI/UX
-EduTrace features a modern, **high-contrast light mode** theme with:
-- Clean, card-based layouts.
-- Vibrant indigo and violet accents.
-- Responsive, mobile-friendly design.
-- Accessible typography (Outfit & Inter).
+---
 
-## 🛠 Tech Stack
-- **Backend**: FastAPI (Python 3.9+)
-- **Database**: SQLite (SQLAlchemy ORM)
-- **Frontend**: Vanilla JavaScript (SPA Architecture)
-- **Rich Editors**: Monaco (VS Code core), Quill.js
-- **Intelligence**: Gemini, OpenRouter, GPT-4
+## 👨‍🏫 The Professor’s Power Suite
+EduTrace gives educators god-mode visibility into how a student arrived at their final answer.
 
-## 🚀 Getting Started
+### 🔍 Total Visibility
+- **Live Replay Player**: Watch the student’s work session in real-time. Rewind and fast-forward to see exactly how their thoughts took shape.
+- **Keystroke Heatmap**: Instantly visualize which parts of the code or document were typed manually and which were pasted from external sources.
+- **Chronological Evidence Trail**: A detailed log of all events, including "Tab Left," "Tab Entered," and "Mass Paste" detections.
 
-### Prerequisites
-- Python 3.9 or higher
-- An OpenRouter or Gemini API Key (for analysis features)
+### 🤖 "Ask the Analyst" (AI-Powered Auditing)
+EduTrace uses advanced AI (OpenRouter) to act as an **Integrity Auditor**. Professors don't just see a score; they can have a conversation about the student's work:
+*   **Automated Audits**: The AI analyzes the keystrokes, snapshots, and logs to provide a structured integrity report.
+*   **Contextual Q&A**: Professors can ask the AI follow-up questions like: *"Why did you flag the second function as high-risk?"* or *"Does the student's interaction with the AI assistant explain the final output?"*
 
-### Installation
+---
 
-1. **Clone the repository:**
+## 🧠 Flexible Intelligence
+Powered by **OpenRouter**, EduTrace is model-agnostic. While it defaults to high-performance auditing, you can easily toggle between the world's most powerful models:
+*   **GPT-4o** for precision auditing.
+*   **Claude 3.5 Sonnet** for nuanced writing analysis.
+*   **Gemini 1.5 Pro** for massive context windows.
+
+---
+
+## 🛠️ Technical Architecture
+EduTrace is built for speed, security, and ease of deployment.
+
+*   **Backend**: High-performance FastAPI (Python).
+*   **Frontend**: Professional-grade Vanilla JS SPA (No heavy frameworks, maximum speed).
+*   **Database**: Encrypted-ready SQLite/PostgreSQL support via SQLAlchemy.
+*   **Integrations**: OpenRouter, Monaco Editor (VS Code Core), Quill.js.
+
+---
+
+## 🚀 Deployment
+
+### Quick Start
+1. **Clone & Setup**:
    ```bash
    git clone https://github.com/Karthik-Mudenahalli-Ashoka/EduTrace-AI-Transparency.git
    cd EduTrace
    ```
-
-2. **Run the quick-start script:**
-   This script will set up your virtual environment, install dependencies, and seed the database with demo accounts.
+2. **Launch**:
+   Run the automated setup script which handles the virtual environment, dependencies, and database initialization.
    ```bash
    chmod +x backend/start.sh
    ./backend/start.sh
    ```
-
-3. **Access the platform:**
-   Open [http://localhost:8000](http://localhost:8000) in your browser.
-
-## 👥 Demo Accounts
-
-| Role      | Email                   | Password    |
-|-----------|-------------------------|-------------|
-| Professor | prof1@stevens.edu       | password123 |
-| Professor | prof2@stevens.edu       | password123 |
-| Student   | alex@student.edu        | password123 |
-
-## 📁 Project Architecture
-The project follows a modular structure where the backend serves the frontend as static assets:
-
-```
-EduTrace/
-├── backend/
-│   ├── app/             # FastAPI Backend (Routes, Models, Logic)
-│   ├── static/          # Integrated Frontend (HTML, CSS, JS)
-│   ├── seed.py          # Database Seeder
-│   └── start.sh         # Auto-setup Script
-└── README.md
-```
+3. **Analyze**:
+   Open `http://localhost:8000` and start auditing.
 
 ---
-**EduTrace** — *Building trust through transparency.*
+**EduTrace** — *Moving from detection to transparency.*
