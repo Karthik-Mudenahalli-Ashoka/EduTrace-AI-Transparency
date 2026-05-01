@@ -82,6 +82,8 @@ async def call_ai_provider(
             return await _call_gemini(api_key, prompt, system_prompt)
         elif provider == "openrouter":
             return await _call_openrouter(api_key, prompt, system_prompt)
+        elif provider == "groq":
+            return await _call_groq(api_key, prompt, system_prompt)
         else:
             return f"Error: Unknown provider '{provider}'"
     except Exception as e:
@@ -109,6 +111,36 @@ async def _call_openai(api_key: str, prompt: str, system_prompt: str) -> str:
         response.raise_for_status()
         data = response.json()
         return data["choices"][0]["message"]["content"]
+
+
+async def _call_groq(api_key: str, prompt: str, system_prompt: str) -> str:
+    async with httpx.AsyncClient(timeout=60.0) as client:
+        response = await client.post(
+            "https://api.groq.com/openai/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": "llama-3.3-70b-versatile",
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": prompt},
+                ],
+                "temperature": 0.7,
+                "max_tokens": 2048,
+            },
+        )
+        try:
+            response.raise_for_status()
+            data = response.json()
+            return data["choices"][0]["message"]["content"]
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 429:
+                raise Exception("Groq API Rate Limit Exceeded. Please try again later.")
+            elif e.response.status_code in (401, 403):
+                raise Exception("Groq API Key Invalid. Please check your key.")
+            raise Exception(f"Groq API Error: {e.response.status_code} - {e.response.text}")
 
 
 async def _call_anthropic(api_key: str, prompt: str, system_prompt: str) -> str:

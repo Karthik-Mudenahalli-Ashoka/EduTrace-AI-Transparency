@@ -98,6 +98,7 @@ function renderWorkspace() {
                 <option value="openai">OpenAI (API key: sk-...)</option>
                 <option value="anthropic">Anthropic (API key: sk-ant-...)</option>
                 <option value="openrouter">OpenRouter (API key: sk-or-...)</option>
+                <option value="groq">Groq (API key: gsk-...)</option>
               </select>
             </div>
             <div class="api-key-input">
