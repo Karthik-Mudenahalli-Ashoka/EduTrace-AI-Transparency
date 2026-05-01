@@ -441,39 +441,49 @@ def quick_integrity_check(
         return {"similarity_score": 0, "detected_transcription": False}
         
     import re
+    from difflib import SequenceMatcher
+    
     def clean_text(text):
+        if not text: return ""
+        # Remove markdown characters and punctuation, keep words
         return re.sub(r'[^\w\s]', '', text.lower())
         
-    content = clean_text(submission.final_content)
+    student_content = clean_text(submission.final_content)
+    if not student_content:
+        return {"similarity_score": 0, "detected_transcription": False}
+        
+    student_words = student_content.split()
     max_ratio = 0
     
     for i in interactions:
-        ai_resp_raw = i.model_response
-        if not ai_resp_raw or len(ai_resp_raw) < 50: continue
+        if not i.model_response or len(i.model_response) < 50: continue
         
-        ai_resp = clean_text(ai_resp_raw)
+        ai_resp = clean_text(i.model_response)
+        ai_words = ai_resp.split()
         
-        # 1. Verbatim sliding window check (Very strict)
-        words = ai_resp.split()
-        window_size = 10 
-        found_verbatim = False
-        for start in range(len(words) - window_size + 1):
-            window = " ".join(words[start:start+window_size])
-            if window in content:
-                found_verbatim = True
-                break
+        # 1. Check for significant word overlap (Bag of words similarity)
+        # We check how many of the student's words are present in this AI response
+        common_words = set(student_words) & set(ai_words)
+        # Filter out very short common words (the, is, at, etc.)
+        meaningful_common = [w for w in common_words if len(w) > 3]
         
-        if found_verbatim:
-            max_ratio = max(max_ratio, 0.98)
-        else:
-            # 2. Fuzzy similarity (Catches paraphrasing)
-            ratio = SequenceMatcher(None, ai_resp, content).ratio()
-            # If they have a 0.4+ match on cleaned text, it's very likely they used it as a heavy reference
-            max_ratio = max(max_ratio, ratio)
+        overlap_ratio = len(meaningful_common) / max(1, len(set([w for w in student_words if len(w) > 3])))
+        
+        # 2. Sequence check (Fuzzy sliding window)
+        # We check the best match for the student's content within the (potentially much longer) AI response
+        matcher = SequenceMatcher(None, ai_resp, student_content)
+        # The ratio() here might be low if ai_resp is much longer than student_content.
+        # So we use the length of the matching blocks.
+        total_matching_chars = sum(block.size for block in matcher.get_matching_blocks())
+        match_ratio = total_matching_chars / len(student_content)
+        
+        # If either ratio is very high, flag it
+        final_i_ratio = max(overlap_ratio * 0.8, match_ratio) # Weight fuzzy match higher
+        max_ratio = max(max_ratio, final_i_ratio)
                 
     return {
         "similarity_score": round(max_ratio, 2),
-        "detected_transcription": max_ratio > 0.6 # High confidence of transcription or close paraphrasing
+        "detected_transcription": max_ratio > 0.65
     }
 
 
