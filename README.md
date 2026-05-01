@@ -23,17 +23,19 @@ EduTrace gives educators god-mode visibility into how a student arrived at their
 - **Chronological Evidence Trail**: A detailed log of all events, including "Tab Left," "Tab Entered," and "Mass Paste" detections.
 
 ### 🤖 "Ask the Analyst" (AI-Powered Auditing)
-EduTrace uses advanced AI (OpenRouter) to act as an **Integrity Auditor**. Professors don't just see a score; they can have a conversation about the student's work:
+EduTrace uses advanced AI to act as an **Integrity Auditor**. Professors don't just see a score; they can have a conversation about the student's work:
 *   **Automated Audits**: The AI analyzes the keystrokes, snapshots, and logs to provide a structured integrity report.
 *   **Contextual Q&A**: Professors can ask the AI follow-up questions like: *"Why did you flag the second function as high-risk?"* or *"Does the student's interaction with the AI assistant explain the final output?"*
 
 ---
 
 ## 🧠 Flexible Intelligence
-Powered by **OpenRouter**, EduTrace is model-agnostic. While it defaults to high-performance auditing, you can easily toggle between the world's most powerful models:
-*   **GPT-4o** for precision auditing.
-*   **Claude 3.5 Sonnet** for nuanced writing analysis.
-*   **Gemini 1.5 Pro** for massive context windows.
+EduTrace is model-agnostic, integrating directly with multiple AI providers. You can toggle between the world's most powerful models:
+*   **GPT-4o Mini** (OpenAI) for precision auditing.
+*   **Claude Sonnet 4** (Anthropic) for nuanced writing analysis.
+*   **Gemini 2.0 Flash** (Google) for rapid context processing.
+*   **Llama 3.3 70B** (Groq) for fast open-source inference.
+*   **OpenRouter** for additional model flexibility.
 
 ---
 
@@ -43,7 +45,8 @@ EduTrace is built for speed, security, and ease of deployment.
 *   **Backend**: High-performance FastAPI (Python).
 *   **Frontend**: Professional-grade Vanilla JS SPA (No heavy frameworks, maximum speed).
 *   **Database**: Encrypted-ready SQLite/PostgreSQL support via SQLAlchemy.
-*   **Integrations**: OpenRouter, Monaco Editor (VS Code Core), Quill.js.
+*   **AI Providers**: OpenAI, Anthropic, Google Gemini, Groq, OpenRouter.
+*   **Integrations**: Monaco Editor (VS Code Core), Quill.js.
 
 ---
 
