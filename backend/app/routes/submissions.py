@@ -430,64 +430,66 @@ def quick_integrity_check(
 ):
     """Perform a fast similarity check between submission content and AI responses."""
     from difflib import SequenceMatcher
-    
+    import re
+
     submission = db.query(Submission).filter(Submission.id == submission_id).first()
     if not submission:
         raise HTTPException(status_code=404, detail="Submission not found")
-        
+
     interactions = db.query(AIInteraction).filter(AIInteraction.submission_id == submission_id).all()
-    
+
     if not interactions or not submission.final_content:
-        return {"similarity_score": 0, "detected_transcription": False}
-        
-    import re
-    from difflib import SequenceMatcher
-    
-    def clean_text(text):
-        if not text: return ""
-        # Remove markdown characters and punctuation, keep words
-        return re.sub(r'[^\w\s]', '', text.lower())
-        
-    student_content = clean_text(submission.final_content)
-    if not student_content:
-        return {"similarity_score": 0, "detected_transcription": False}
-        
-    student_words = student_content.split()
-    max_ratio = 0
-    
-    for i in interactions:
-        if not i.model_response or len(i.model_response) < 50: continue
-        
-        ai_resp = clean_text(i.model_response)
-        ai_words = ai_resp.split()
-        
-        # 1. Check for significant word overlap (Bag of words similarity)
-        # We check how many of the student's words are present in this AI response
-        common_words = set(student_words) & set(ai_words)
-        # Filter out very short common words (the, is, at, etc.)
-        meaningful_common = [w for w in common_words if len(w) > 3]
-        
-        overlap_ratio = len(meaningful_common) / max(1, len(set([w for w in student_words if len(w) > 3])))
-        
-        # 2. Sequence check (Fuzzy sliding window)
-        # We check the best match for the student's content within the (potentially much longer) AI response
-        matcher = SequenceMatcher(None, ai_resp, student_content)
-        # The ratio() here might be low if ai_resp is much longer than student_content.
-        # So we use the length of the matching blocks.
-        total_matching_chars = sum(block.size for block in matcher.get_matching_blocks())
-        match_ratio = total_matching_chars / len(student_content)
-        
-        # If either ratio is very high, flag it
-        final_i_ratio = max(overlap_ratio * 0.8, match_ratio) # Weight fuzzy match higher
-        max_ratio = max(max_ratio, final_i_ratio)
-                
+        return {"similarity_score": 0, "detected_transcription": False, "debug": "no content or interactions"}
+
+    def clean(text):
+        return re.sub(r'\s+', ' ', re.sub(r'[^\w\s]', '', text.lower())).strip()
+
+    student_text = clean(submission.final_content)
+    student_words = student_text.split()
+
+    max_ratio = 0.0
+    found_verbatim = False
+
+    for interaction in interactions:
+        ai_raw = interaction.model_response
+        if not ai_raw or len(ai_raw) < 30:
+            continue
+
+        ai_words = clean(ai_raw).split()
+        if len(ai_words) < 5:
+            continue
+
+        # Strategy 1: Sliding window - look for any 6-word sequence from AI in the student text
+        for window_size in [8, 6, 5]:
+            if len(ai_words) < window_size:
+                continue
+            for start in range(len(ai_words) - window_size + 1):
+                window = " ".join(ai_words[start:start + window_size])
+                if window in student_text:
+                    found_verbatim = True
+                    max_ratio = 0.95
+                    break
+            if found_verbatim:
+                break
+
+        if found_verbatim:
+            break
+
+        # Strategy 2: Overall fuzzy match (catches paraphrasing)
+        ai_text = " ".join(ai_words)
+        ratio = SequenceMatcher(None, ai_text, student_text).ratio()
+        max_ratio = max(max_ratio, ratio)
+
+    score = round(max_ratio, 2)
     return {
-        "similarity_score": round(max_ratio, 2),
-        "detected_transcription": max_ratio > 0.65
+        "similarity_score": score,
+        "detected_transcription": found_verbatim or score > 0.45,
+        "debug": f"student_words={len(student_words)}, interactions={len(interactions)}, verbatim={found_verbatim}, score={score}"
     }
 
 
 class ExternalScanRequest(BaseModel):
+
     api_key: Optional[str] = None
 
 @router.post("/ai/external-scan/{submission_id}")

@@ -427,20 +427,25 @@ async function checkAI() {
     }
     
     // NEW: Real-time Content Similarity Check (Transcribed content)
-    let similarityData = { similarity_score: 0, detected_transcription: false };
+    let similarityData = { similarity_score: 0, detected_transcription: false, debug: '' };
     try {
       similarityData = await api.quickCheck(sub.id);
+      console.log('[EduTrace] Quick check result:', similarityData);
     } catch (e) { console.error('Quick check failed', e); }
 
-    // Combine Keystroke % and Similarity %
-    // If they transcribed AI content, their percentage should reflect that
-    if (similarityData.detected_transcription || similarityData.similarity_score > 0.5) {
-      const similarityPercent = Math.round(similarityData.similarity_score * 100);
-      percentage = Math.max(percentage, similarityPercent);
+    // Override the percentage if AI content was detected via content similarity
+    if (similarityData.detected_transcription) {
+      // If verbatim transcription was found, show at least 90% regardless of typing style
+      percentage = Math.max(percentage, Math.round(similarityData.similarity_score * 100));
+    } else if (similarityData.similarity_score > 0) {
+      // Blend the similarity score in even without full detection
+      percentage = Math.max(percentage, Math.round(similarityData.similarity_score * 100));
     }
     
     const interactions = await api.getAIInteractions(sub.id);
     const hasAIInteraction = interactions.length > 0;
+    const transcriptionWarning = similarityData.detected_transcription;
+
     
     // Display the AI Generated Percentage
     const scoreColor = percentage >= 70 ? 'var(--danger)' : percentage >= 40 ? 'var(--warning)' : 'var(--success)';
@@ -459,6 +464,7 @@ async function checkAI() {
           <div class="card" style="padding:16px;background:rgba(99,102,241,0.03);border:1px solid var(--border)"><strong style="color:var(--text-primary);font-size:1.5rem">${effectivePasted}</strong><br><span style="font-size:.75rem;color:var(--text-muted)">Active Pasted Chars</span></div>
         </div>
         ${hasAIInteraction ? '<div style="margin-top:16px;font-size:0.85rem;color:var(--accent);padding:12px;background:rgba(99,102,241,0.06);border-radius:8px;border:1px solid var(--border)">🌟 You have interacted with the AI Assistant during this session.</div>' : ''}
+        ${transcriptionWarning ? '<div style="margin-top:8px;font-size:0.85rem;color:var(--danger);padding:12px;background:rgba(239,68,68,0.06);border-radius:8px;border:1px solid rgba(239,68,68,0.3)">⚠️ <strong>Transcription Detected:</strong> Your submission closely matches responses you received from the AI Assistant. This will be flagged for your professor.</div>' : ''}
       </div>
     `;
     const target = document.getElementById('check-ai-content');
