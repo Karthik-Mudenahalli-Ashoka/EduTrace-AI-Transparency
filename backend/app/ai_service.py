@@ -154,10 +154,16 @@ async def _call_gemini(api_key: str, prompt: str, system_prompt: str) -> str:
                 },
             },
         )
-        response.raise_for_status()
-        data = response.json()
-        return data["candidates"][0]["content"]["parts"][0]["text"]
-
+        try:
+            response.raise_for_status()
+            data = response.json()
+            return data["candidates"][0]["content"]["parts"][0]["text"]
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 429:
+                raise Exception("Gemini API Rate Limit Exceeded (429). Your API key has run out of quota or hit the requests-per-minute limit. Please check your Google AI Studio dashboard or try again in a minute.")
+            elif e.response.status_code in (400, 401, 403):
+                raise Exception(f"Gemini API Error ({e.response.status_code}). Please verify that your API key is correct and active.")
+            raise Exception(f"Gemini API Error: {e.response.status_code} - {e.response.text}")
 
 async def _call_openrouter(api_key: str, prompt: str, system_prompt: str) -> str:
     async with httpx.AsyncClient(timeout=60.0) as client:
