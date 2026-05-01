@@ -1,97 +1,81 @@
 # EduTrace — AI Usage Transparency Platform
 
-An academic integrity tool that creates a **tamper-evident evidence trail** of student AI usage. Instead of trying to *catch* cheaters, EduTrace helps honest students document their AI usage transparently and gives professors real evidence to evaluate.
+![EduTrace Logo](https://raw.githubusercontent.com/Karthik-Mudenahalli-Ashoka/EduTrace-AI-Transparency/main/backend/static/navbar-logo.png) (Placeholder)
 
-## Features
+**EduTrace** is a professional-grade Academic Integrity & Monitoring platform designed for the age of Generative AI. Instead of relying on unreliable AI "detectors," EduTrace creates a **tamper-evident evidence trail** of student work, allowing for transparent documentation of AI usage and evidence-based evaluation.
 
-### Student Side
-- **Python IDE** — Monaco Editor (VS Code's editor) with code execution
-- **Document Editor** — Quill rich text editor for reports
-- **AI Learning Assistant** — Side panel supporting OpenAI, Anthropic, and Gemini (student's own API key). AI is instructed to guide learning, not give direct answers
-- **Keystroke Tracking** — Records typing/paste events and periodic content snapshots
-- **AI Interaction Logging** — Every prompt and response is stored
+## ✨ Key Features
 
-### Professor Side  
-- **Submission Dashboard** — View all student submissions
-- **Final Work Tab** — See the student's submitted code or document
-- **AI Interactions Tab** — Full chronological log of every AI prompt/response
-- **Keystroke Timeline** — Visual timeline with paste event detection and stats
-- **AI Analysis** — Gemini-powered structured analysis of AI usage patterns
-- **Summary Chat** — Ask follow-up questions about the analysis ("Why did you flag paragraph 3?")
+### 🎓 For Students
+- **Hybrid Workspace** — Switch between a full-featured **Python IDE** (Monaco) and a **Rich Text Document Editor** (Quill).
+- **Embedded AI Learning Assistant** — Chat with Gemini, OpenAI, or Claude to understand concepts. All interactions are logged to prove your process.
+- **Transparency by Design** — Record your keystrokes, paste events, and browser focus patterns to demonstrate academic honesty.
 
-## Tech Stack
-- **Backend**: FastAPI (Python)
-- **Database**: SQLite + SQLAlchemy
-- **Frontend**: Vanilla JS SPA served from FastAPI
-- **Editors**: Monaco (code), Quill (documents)
-- **AI**: OpenAI, Anthropic, Gemini APIs
-- **Auth**: JWT tokens with bcrypt password hashing
+### 👨‍🏫 For Professors
+- **Integrity Dashboard** — High-contrast review interface with real-time risk assessments.
+- **Live Replay Player** — Rewind and watch the student's entire writing process stroke-by-stroke.
+- **Keystroke Heatmap** — Instant visual identification of pasted vs. typed content in code submissions.
+- **AI Integrity Reporting** — Structured reports analyzing AI usage patterns, prompted by Gemini.
+- **Advanced Grading** — Integrated grading system supporting both **Percentage** and **Letter Grades (A-F)** with automatic conversion.
 
-## Quick Start
+## 🎨 Premium UI/UX
+EduTrace features a modern, **high-contrast light mode** theme with:
+- Clean, card-based layouts.
+- Vibrant indigo and violet accents.
+- Responsive, mobile-friendly design.
+- Accessible typography (Outfit & Inter).
 
-```bash
-# 1. Install dependencies
-cd backend
-pip install -r requirements.txt
+## 🛠 Tech Stack
+- **Backend**: FastAPI (Python 3.9+)
+- **Database**: SQLite (SQLAlchemy ORM)
+- **Frontend**: Vanilla JavaScript (SPA Architecture)
+- **Rich Editors**: Monaco (VS Code core), Quill.js
+- **Intelligence**: Gemini, OpenRouter, GPT-4
 
-# 2. (Optional) Set Gemini API key for AI analysis features
-export GEMINI_API_KEY=your-gemini-api-key
+## 🚀 Getting Started
 
-# 3. Seed demo data
-python3 seed.py
+### Prerequisites
+- Python 3.9 or higher
+- An OpenRouter or Gemini API Key (for analysis features)
 
-# 4. Start the server
-python3 -m uvicorn app.main:app --port 8000 --reload
-```
+### Installation
 
-Open **http://localhost:8000** in your browser.
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Karthik-Mudenahalli-Ashoka/EduTrace-AI-Transparency.git
+   cd EduTrace
+   ```
 
-## Demo Accounts
+2. **Run the quick-start script:**
+   This script will set up your virtual environment, install dependencies, and seed the database with demo accounts.
+   ```bash
+   chmod +x backend/start.sh
+   ./backend/start.sh
+   ```
+
+3. **Access the platform:**
+   Open [http://localhost:8000](http://localhost:8000) in your browser.
+
+## 👥 Demo Accounts
 
 | Role      | Email                   | Password    |
 |-----------|-------------------------|-------------|
-| Professor | sarah@university.edu    | password123 |
-| Professor | james@university.edu    | password123 |
+| Professor | prof1@stevens.edu       | password123 |
+| Professor | prof2@stevens.edu       | password123 |
 | Student   | alex@student.edu        | password123 |
-| Student   | maya@student.edu        | password123 |
-| Student   | ryan@student.edu        | password123 |
 
-## Project Structure
+## 📁 Project Architecture
+The project follows a modular structure where the backend serves the frontend as static assets:
 
 ```
-backend/
-├── app/
-│   ├── __init__.py
-│   ├── main.py          # FastAPI app + static file serving
-│   ├── database.py      # SQLAlchemy setup
-│   ├── models.py        # ORM models
-│   ├── schemas.py       # Pydantic schemas
-│   ├── auth.py          # JWT auth + role-based access
-│   ├── ai_service.py    # Multi-provider AI + analysis
-│   └── routes/
-│       ├── __init__.py  # Auth routes
-│       ├── assignments.py
-│       └── submissions.py
-├── static/
-│   ├── index.html
-│   ├── css/app.css
-│   └── js/
-│       ├── api.js       # API client
-│       ├── store.js     # State management
-│       ├── components.js # Reusable UI
-│       ├── pages.js     # Page renderers
-│       └── app.js       # Workspace + Review + Router
-├── seed.py              # Demo data seeder
-├── start.sh             # Quick start script
-└── requirements.txt
+EduTrace/
+├── backend/
+│   ├── app/             # FastAPI Backend (Routes, Models, Logic)
+│   ├── static/          # Integrated Frontend (HTML, CSS, JS)
+│   ├── seed.py          # Database Seeder
+│   └── start.sh         # Auto-setup Script
+└── README.md
 ```
 
-## How It Works
-
-1. **Professor** creates assignments (Python or Document type)
-2. **Student** opens the workspace — code IDE or rich text editor
-3. While working, the app logs: keystrokes, paste events, content snapshots
-4. Student can use the **AI Assistant** (their own API key) — all prompts/responses are recorded
-5. Student submits → professor sees the full evidence trail
-6. Professor clicks **Generate Analysis** → Gemini analyzes all evidence
-7. Professor can **ask follow-up questions** about the analysis in a chat
+---
+**EduTrace** — *Building trust through transparency.*
