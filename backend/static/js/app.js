@@ -431,18 +431,18 @@ async function checkAI() {
     
     let content = `
       <div class="flex flex-col items-center gap-md text-center">
-        <div style="position:relative;width:150px;height:150px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:8px solid ${scoreColor};box-shadow:0 0 20px ${scoreColor}40">
-          <div style="font-size:3.5rem;font-weight:800;color:white">${percentage}%</div>
+        <div style="position:relative;width:150px;height:150px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:8px solid ${scoreColor};box-shadow:0 0 20px ${scoreColor}40;background:#ffffff">
+          <div style="font-size:3.5rem;font-weight:800;color:var(--text-primary)">${percentage}%</div>
         </div>
         <h3 style="margin:0;color:${scoreColor}">Estimated AI / Pasted Content</h3>
         <div style="font-size:0.9rem;color:var(--text-secondary);max-width:300px">
           Calculated based on your active typed vs. pasted content.
         </div>
         <div class="grid grid-2" style="gap:12px;width:100%;margin-top:16px">
-          <div class="card" style="padding:16px;background:rgba(255,255,255,0.02)"><strong style="color:white;font-size:1.5rem">${effectiveTyped}</strong><br><span style="font-size:.75rem">Active Typed Chars</span></div>
-          <div class="card" style="padding:16px;background:rgba(255,255,255,0.02)"><strong style="color:white;font-size:1.5rem">${effectivePasted}</strong><br><span style="font-size:.75rem">Active Pasted Chars</span></div>
+          <div class="card" style="padding:16px;background:rgba(99,102,241,0.03);border:1px solid var(--border)"><strong style="color:var(--text-primary);font-size:1.5rem">${effectiveTyped}</strong><br><span style="font-size:.75rem;color:var(--text-muted)">Active Typed Chars</span></div>
+          <div class="card" style="padding:16px;background:rgba(99,102,241,0.03);border:1px solid var(--border)"><strong style="color:var(--text-primary);font-size:1.5rem">${effectivePasted}</strong><br><span style="font-size:.75rem;color:var(--text-muted)">Active Pasted Chars</span></div>
         </div>
-        ${hasAIInteraction ? '<div style="margin-top:16px;font-size:0.85rem;color:var(--accent-4);padding:12px;background:rgba(14,165,233,0.1);border-radius:8px;border:1px solid rgba(14,165,233,0.3)">🌟 You have interacted with the AI Assistant during this session.</div>' : ''}
+        ${hasAIInteraction ? '<div style="margin-top:16px;font-size:0.85rem;color:var(--accent);padding:12px;background:rgba(99,102,241,0.06);border-radius:8px;border:1px solid var(--border)">🌟 You have interacted with the AI Assistant during this session.</div>' : ''}
       </div>
     `;
     const target = document.getElementById('check-ai-content');
